@@ -35,9 +35,9 @@ void MainWindow::createIndexProcess()
 void MainWindow::createIndex()
 {
     //打开数据库
-    //int rc = sqlite3_open("anything.db", &db);
+    int rc = sqlite3_open("anything.db", &db);
     //使用内存数据库
-    int rc = sqlite3_open(":memory:", &db);
+    //int rc = sqlite3_open(":memory:", &db);
     if(rc)
     {
         qDebug()<<"Open database failed!\n";
@@ -58,7 +58,7 @@ void MainWindow::createIndex()
             //开启事务
             sqlite3_exec(db, "BEGIN;", 0, 0, NULL);
             //获取每个盘下所有文件
-            getAllFile(QString(name.c_str()));
+            //getAllFile(QString(name.c_str()));
             //结束事务
             sqlite3_exec(db, "COMMIT;", 0, 0, NULL);
         }
@@ -175,9 +175,9 @@ QStringList MainWindow::findAllMatchedPaths(const QString &str,const QString &pa
         qDebug()<<"search the table successful!\n"<<nrow<<"\ntime:"<<end-begin;
     else
         qDebug()<<errMsg;
-    for(int i=0;i<nrow;++i)
+    for(int i=0;i<(nrow+1)*ncolumn;++i)
     {
-        result.push_back(azResult[i]);
+        result.push_back(QString(azResult[i]));
     }
     return result;
 
@@ -189,7 +189,7 @@ int MainWindow::findAllMatchedPathsNum(const QString &str,const QString &path)
     int nrow=0, ncolumn=0;
     char **azResult; //存放结果
     int rc=sqlite3_get_table(db,
-                    ("SELECT count(*) from files where path LIKE \'%"+str+"%\';").toStdString().c_str(),
+                    ("SELECT count(path) from files where path LIKE \'%"+str+"%\';").toStdString().c_str(),
                     &azResult,&nrow,&ncolumn,&errMsg); //建立表datapro
     if(rc==SQLITE_OK) //查询成功
         qDebug()<<"search the table successful!\n"<<"lines:"<<azResult[1];
